@@ -11,6 +11,7 @@
 #include <QHBoxLayout>
 #include <contacts.h>
 #include <QFont>
+#include <QContextMenuEvent>
 
 
 
@@ -53,6 +54,9 @@ public:
     }
 
 
+    int CheckToBorderWidth(int x);
+    int CheckToBorderHeight(int y);
+
 private:
 
 static int STEP_GRID_X1;
@@ -64,6 +68,7 @@ QDialog* question;
 private slots:
 void YesFunc();
 void NoFunc();
+virtual void ShowContextMenu(const QPoint&)=0;
 
 };
 

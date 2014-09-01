@@ -69,6 +69,7 @@ void Contacts::paintEvent(QPaintEvent *event)
 
 
     painter->end();
+    delete painter;
 
 }
 

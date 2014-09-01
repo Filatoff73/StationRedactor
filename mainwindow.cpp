@@ -34,7 +34,7 @@ void MainWindow::DeleteButton()
 
 void MainWindow::AddBlock()
 {
-    mainWidget->AddBlockElement();
+    mainWidget->AddBlockRelay();
 
 
 }

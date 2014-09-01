@@ -29,10 +29,10 @@ public:
       void mouseReleaseEvent(QMouseEvent* mouseEvent);
        void wheelEvent(QWheelEvent* event);
 
-    void DrawGrid(QPainter *painter);
+    void DrawGrid(QPainter *&painter);
     QHBoxLayout* SetWidgetBlocks();
 
-    void DrawNeighbours(QPainter* painter);
+    void DrawNeighbours(QPainter*& painter);
 
     int GetDrawContactLine()
     {
@@ -57,7 +57,8 @@ public:
     }
 
     void DeleteConnectionLine();
-    void AddBlockElement();
+    void AddBlockRelay();
+    void DeleteElement(MainElement* element);
 
 
     ~Widget();

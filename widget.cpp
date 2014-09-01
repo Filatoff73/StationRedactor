@@ -20,7 +20,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget)
     beginContact=NULL;
     endContact=NULL;
 
-    nElement=1;
+    nElement=0;
     arrRelay.resize(nElement);
 
     for(int i=0;i<nElement;i++)
@@ -29,9 +29,10 @@ Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget)
         arrRelay[i]->show();
     }
 
+
 }
 
-void Widget::AddBlockElement()
+void Widget::AddBlockRelay()
 {
     nElement++;
     arrRelay.resize(nElement);
@@ -45,7 +46,34 @@ repaint();
 
 }
 
+void Widget::DeleteElement(MainElement* element)
+{
+    for(int i=0;i<arrRelay.size();i++)
+    {
+        if(arrRelay[i] == element)
+        {
+            QVector <Contacts*> tempContacts = arrRelay[i]->GetArrContacts();
 
+            for(int j=0;j<tempContacts.size();j++)
+            {
+                if(tempContacts[j]->GetNeighbour()!=NULL)
+                {
+                    tempContacts[j]->GetNeighbour()->SetNeighbour(NULL);
+                    tempContacts[j]->SetNeighbour(NULL);
+                }
+            }
+
+            tempContacts.clear();
+
+            delete arrRelay[i];
+            arrRelay.remove(i);
+            nElement--;
+            repaint();
+            break;
+
+        }
+    }
+}
 
 
 void Widget::paintEvent(QPaintEvent *event)
@@ -81,6 +109,7 @@ void Widget::paintEvent(QPaintEvent *event)
 
 
     painter->end();
+    delete painter;
 
 }
 
@@ -109,7 +138,7 @@ void Widget::wheelEvent(QWheelEvent* event)
     {
         if(dynamic_cast<MainElement*>(this->parent())->SetScale(1.1))
         {
-            this->setGeometry(0,0,this->size().width()*1.1,this->size().height()*1.1 );
+           // this->setGeometry(0,0,this->size().width()*1.1,this->size().height()*1.1 );
 
             for(int i=0;i<arrRelay.size();i++)
             {
@@ -117,8 +146,11 @@ void Widget::wheelEvent(QWheelEvent* event)
                 int nx = arrRelay[i]->GetPosition().x()/x;
                 int ny = arrRelay[i]->GetPosition().y()/y;
 
+                nx = nx*MainElement::GetSTEP_GRID_X1();
+                ny = ny*MainElement::GetSTEP_GRID_Y1();
 
-                arrRelay[i]->SetPosition(nx*MainElement::GetSTEP_GRID_X1() , ny*MainElement::GetSTEP_GRID_Y1());
+
+                arrRelay[i]->SetPosition(nx , ny);
 
                 arrRelay[i]->SetMinimumSize();
                 arrRelay[i]->SetContact();
@@ -136,14 +168,17 @@ void Widget::wheelEvent(QWheelEvent* event)
     {
         if(dynamic_cast<MainElement*>(this->parent())->SetScale(-1.1))
         {
-            this->setGeometry(0,0,this->size().width()/1.1,this->size().height()/1.1 );
+            //this->setGeometry(0,0,this->size().width()/1.1,this->size().height()/1.1 );
 
             for(int i=0;i<arrRelay.size();i++)
             {
                 int nx = arrRelay[i]->GetPosition().x()/x;
                 int ny = arrRelay[i]->GetPosition().y()/y;
 
-                arrRelay[i]->SetPosition(nx*MainElement::GetSTEP_GRID_X1() , ny*MainElement::GetSTEP_GRID_Y1());
+                nx = nx*MainElement::GetSTEP_GRID_X1();
+                ny = ny*MainElement::GetSTEP_GRID_Y1();
+
+               arrRelay[i]->SetPosition(nx , ny);
 
                arrRelay[i]->SetMinimumSize();
                arrRelay[i]->SetContact();
@@ -163,7 +198,7 @@ this->repaint();
 
 
 
-void Widget::DrawGrid(QPainter *painter)
+void Widget::DrawGrid(QPainter *&painter)
 {
     painter->setPen(Qt::SolidLine);
        painter->setPen(QColor(Qt::lightGray));
@@ -234,7 +269,7 @@ void Widget::DeleteConnectionLine()
 
 }
 
-void Widget::DrawNeighbours(QPainter* painter)
+void Widget::DrawNeighbours(QPainter*& painter)
 {
     for(int i=0;i<arrRelay.size();i++)
     {
@@ -295,10 +330,13 @@ void Widget::DrawNeighbours(QPainter* painter)
 
                         }
                     }
-
+                    tempContacts2.clear();
                 }
             }
         }
+        tempContacts.clear();
+
+
     }
 }
 
@@ -312,4 +350,8 @@ Widget::~Widget()
     {
         delete arrRelay[i];
     }
+
+    delete beginContact;
+    delete endContact;
+
 }

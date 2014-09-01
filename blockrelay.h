@@ -19,7 +19,7 @@ public:
       void mouseReleaseEvent(QMouseEvent* mouseEvent);
 
       //Прорисовка геометрии блока
-      void DrawBlock(QPainter* painter);
+      void DrawBlock(QPainter*& painter);
 
       //привязка к сетке
       void SetToGrid(int x1,int y1);
@@ -63,10 +63,16 @@ private:
     int nContactsDown;
     int nContacts;
 
+    bool isMirrorGorizontal;
+    bool isMirrorVertical;
+
     int sizeX, sizeY;//размеры (в клетках) релейного блока
 
     int rotateAngle;
     QVector <Contacts*> arrContacts;
+
+private slots:
+    void ShowContextMenu(const QPoint&);
 
 
 

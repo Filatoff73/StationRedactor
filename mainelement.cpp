@@ -1,6 +1,7 @@
 #include "mainelement.h"
 #include <QDebug>
 #include <QLabel>
+#include <widget.h>
 
 int MainElement::STEP_GRID_X1=0;
 int MainElement::STEP_GRID_Y1=0;
@@ -10,7 +11,15 @@ MainElement::MainElement(QWidget *parent) : QWidget(parent)
 {
     resultDialog=false;
     question = new QDialog;
+
+
+
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu(const QPoint&)));
+
+
 }
+
 
 bool MainElement::CreateDialog()
 {
@@ -82,6 +91,35 @@ void MainElement::InitConstans()
     font.setPixelSize(STEP_GRID_X1/5.0);
 
 }
+
+
+
+int MainElement::CheckToBorderWidth(int x)
+{
+    if( x > dynamic_cast<Widget*>(this->parent())->size().width())
+        return dynamic_cast<Widget*>(this->parent())->size().width();
+
+    if( x < 0 )
+        return 0;
+
+    return x;
+
+
+}
+
+int MainElement::CheckToBorderHeight(int y)
+{
+    if( y > dynamic_cast<Widget*>(this->parent())->size().height())
+        return dynamic_cast<Widget*>(this->parent())->size().height();
+
+    if( y < 0 )
+        return 0;
+
+    return y;
+}
+
+
+
 
 MainElement::~MainElement()
 {

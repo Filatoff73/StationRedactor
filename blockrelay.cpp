@@ -7,12 +7,16 @@
 #include <QTextItem>
 #include <QPaintEngine>
 #include <QFont>
+#include <QMenu>
+
 
 
 BlockRelay::BlockRelay(int id, QWidget *parent) : MainElement(parent)
 {
     nameBlock = "BlockRelay";
     idBlock=id;
+    isMirrorGorizontal=false;
+    isMirrorVertical=false;
 
     positionBlock.setX(0);
     positionBlock.setY(0);
@@ -20,10 +24,10 @@ BlockRelay::BlockRelay(int id, QWidget *parent) : MainElement(parent)
     beginPositionBlock.setX(0);
     beginPositionBlock.setY(0);
 
-     nContactsLeft=7;
-     nContactsRight=3;
-     nContactsUp=9;
-     nContactsDown=7;
+     nContactsLeft=1;
+     nContactsRight=2;
+     nContactsUp=3;
+     nContactsDown=4;
 
      nContacts = nContactsDown + nContactsUp + nContactsLeft + nContactsRight;
 
@@ -45,6 +49,57 @@ BlockRelay::BlockRelay(int id, QWidget *parent) : MainElement(parent)
 
 }
 
+void BlockRelay::ShowContextMenu(const QPoint& pos)
+{
+    QPoint globalPos = mapToGlobal(pos);
+
+        QMenu myMenu;
+        myMenu.addAction("Отразить по вертикали");
+        myMenu.addAction("Отразить по горизонтали");
+        myMenu.addAction("Удалить элемент");
+
+        QAction* selectedItem = myMenu.exec(globalPos);
+        if (selectedItem)
+        {
+            QString txt = selectedItem->text();
+
+            if(!txt.compare("Отразить по вертикали"))
+            {
+                isMirrorVertical=!isMirrorVertical;
+                int temp;
+                temp = nContactsLeft;
+                nContactsLeft=nContactsRight;
+                nContactsRight=temp;
+                SetContact();
+                dynamic_cast<Widget*>(this->parent())->repaint();
+            }
+
+            if(!txt.compare("Отразить по горизонтали"))
+            {
+                isMirrorGorizontal=!isMirrorGorizontal;
+                int temp;
+                temp = nContactsUp;
+                nContactsUp=nContactsDown;
+                nContactsDown=temp;
+                SetContact();
+                dynamic_cast<Widget*>(this->parent())->repaint();
+
+            }
+
+            if(!txt.compare("Удалить элемент"))
+            {
+                dynamic_cast<Widget*>(this->parent())->DeleteElement(this);
+            }
+
+        }
+
+
+
+}
+
+
+
+
 void BlockRelay::paintEvent(QPaintEvent *event)
 {
     QPainter *painter = new QPainter (this);
@@ -52,11 +107,26 @@ void BlockRelay::paintEvent(QPaintEvent *event)
 
     painter->setPen(pen);
 
+
     painter->save();
-    //Поворот блока
-    painter->translate(GetSTEP_GRID_X1(),GetSTEP_GRID_Y1());
-    painter->rotate(rotateAngle);
-    painter->translate(-GetSTEP_GRID_X1(),-GetSTEP_GRID_Y1());
+    painter->translate(sizeX*GetSTEP_GRID_X1()/2,GetSTEP_GRID_Y1()*sizeY/2);
+    if(isMirrorGorizontal)
+    {
+        QTransform t = painter->worldTransform();
+        t.rotate(180, Qt::XAxis);
+        painter->setTransform(t);
+
+    }
+    if(isMirrorVertical)
+    {
+        QTransform t = painter->worldTransform();
+        t.rotate(180, Qt::YAxis);
+        painter->setTransform(t);
+
+    }
+
+    painter->translate(-sizeX*GetSTEP_GRID_X1()/2.0,-GetSTEP_GRID_Y1()*sizeY/2.0);
+
 
     DrawBlock(painter);
 
@@ -65,6 +135,7 @@ void BlockRelay::paintEvent(QPaintEvent *event)
 
      move(positionBlock);
      painter->end();
+     delete painter;
 
 }
 
@@ -79,12 +150,18 @@ void BlockRelay::mouseMoveEvent (QMouseEvent* mouseEvent)
 
     q.setY(mouseEvent->globalPos().y() - beginPositionBlock.y());
 
-   positionBlock.setX(q.x());
-   positionBlock.setY(q.y());
+    q.setX(CheckToBorderWidth(q.x()));
+    q.setY(CheckToBorderHeight(q.y()));
 
-   dynamic_cast<Widget*>(this->parent())->repaint();
+    positionBlock.setX(q.x());
+    positionBlock.setY(q.y());
 
-     move(q);
+    move(positionBlock);
+
+
+    dynamic_cast<Widget*>(this->parent())->repaint();
+
+
     }
 
 }
@@ -111,6 +188,7 @@ void BlockRelay::mouseReleaseEvent(QMouseEvent* mouseEvent)
     int x1,y1;
     x1=mouseEvent->globalPos().x() - beginPositionBlock.x();
     y1=mouseEvent->globalPos().y() - beginPositionBlock.y();
+
     SetToGrid(x1,y1);
     is_dragged=false;
     }
@@ -122,6 +200,9 @@ void BlockRelay::mouseReleaseEvent(QMouseEvent* mouseEvent)
 void BlockRelay::SetToGrid(int x1,int y1)
 {
     QPoint q;
+
+    x1 = CheckToBorderWidth(x1);
+    y1 = CheckToBorderHeight(y1);
 
     if(x1%GetSTEP_GRID_X1() <= GetSTEP_GRID_X1()/2)
         q.setX(x1 - x1%GetSTEP_GRID_X1());
@@ -136,10 +217,20 @@ void BlockRelay::SetToGrid(int x1,int y1)
     if(y1%GetSTEP_GRID_Y1() > GetSTEP_GRID_Y1()/2)
         q.setY(y1 + (GetSTEP_GRID_Y1() - y1%GetSTEP_GRID_Y1()));
 
+
+
+
     positionBlock.setX(q.x());
+
+
     positionBlock.setY(q.y());
 
-    move(q);
+
+
+
+        move(positionBlock);
+
+
 
 }
 
@@ -149,9 +240,9 @@ void BlockRelay::SetMinimumSize()
     setMaximumSize((sizeX+0.5)*GetSTEP_GRID_X1(), (sizeY+0.5)*GetSTEP_GRID_Y1());
 }
 
-void BlockRelay::DrawBlock(QPainter* painter)
+void BlockRelay::DrawBlock(QPainter*& painter)
 {
-    painter->drawRect(0, 0, (sizeX)*GetSTEP_GRID_X1(), (sizeY)*GetSTEP_GRID_Y1() );
+    painter->drawRect(0.1*GetSTEP_GRID_X1(), 0.1*GetSTEP_GRID_Y1(), (sizeX-0.2)*GetSTEP_GRID_X1(), (sizeY-0.2)*GetSTEP_GRID_Y1() );
 
     //QFont font = &GetFont();
     painter->setFont(GetFont());
