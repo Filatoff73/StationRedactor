@@ -23,7 +23,8 @@ HEADERS  += widget.h \
     mainelement.h \
     blockrelay.h \
     contacts.h \
-    mainwindow.h
+    mainwindow.h \
+    constans.h
 
 FORMS    += widget.ui \
     mainwindow.ui

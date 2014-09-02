@@ -7,8 +7,7 @@
 #include <QScrollBar>
 #include <QScrollArea>
 
-#define RIGHT_BORDER 800
-#define BOTTOM_BORDER 800
+
 
 
 Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget)
@@ -21,11 +20,10 @@ Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget)
     endContact=NULL;
 
     nElement=0;
-    arrRelay.resize(nElement);
 
     for(int i=0;i<nElement;i++)
     {
-        arrRelay[i] = new BlockRelay(i, this);
+        arrRelay.append(new BlockRelay(i, this));
         arrRelay[i]->show();
     }
 
@@ -35,8 +33,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget)
 void Widget::AddBlockRelay()
 {
     nElement++;
-    arrRelay.resize(nElement);
-    arrRelay[nElement-1]  =new BlockRelay(nElement-1, this);
+    arrRelay.append(new BlockRelay(nElement-1, this));
     arrRelay[nElement-1]->show();
 
 
@@ -52,19 +49,6 @@ void Widget::DeleteElement(MainElement* element)
     {
         if(arrRelay[i] == element)
         {
-            QVector <Contacts*> tempContacts = arrRelay[i]->GetArrContacts();
-
-            for(int j=0;j<tempContacts.size();j++)
-            {
-                if(tempContacts[j]->GetNeighbour()!=NULL)
-                {
-                    tempContacts[j]->GetNeighbour()->SetNeighbour(NULL);
-                    tempContacts[j]->SetNeighbour(NULL);
-                }
-            }
-
-            tempContacts.clear();
-
             delete arrRelay[i];
             arrRelay.remove(i);
             nElement--;
@@ -136,7 +120,7 @@ void Widget::wheelEvent(QWheelEvent* event)
     int y=MainElement::GetSTEP_GRID_Y1();
     if(event->delta()>0)
     {
-        if(dynamic_cast<MainElement*>(this->parent())->SetScale(1.1))
+        if(dynamic_cast<MainElement*>(this->parent())->SetScale(SCALE))
         {
            // this->setGeometry(0,0,this->size().width()*1.1,this->size().height()*1.1 );
 
@@ -166,7 +150,7 @@ void Widget::wheelEvent(QWheelEvent* event)
 
     if(event->delta()<0)
     {
-        if(dynamic_cast<MainElement*>(this->parent())->SetScale(-1.1))
+        if(dynamic_cast<MainElement*>(this->parent())->SetScale(-SCALE))
         {
             //this->setGeometry(0,0,this->size().width()/1.1,this->size().height()/1.1 );
 

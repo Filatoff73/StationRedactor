@@ -100,6 +100,8 @@ public:
 
     void SetMinimumSizeContatct();
 
+    ~Contacts();
+
 
 private:
     int idContact;

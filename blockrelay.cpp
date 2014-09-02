@@ -8,6 +8,9 @@
 #include <QPaintEngine>
 #include <QFont>
 #include <QMenu>
+#include <QLabel>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 
 
@@ -31,8 +34,8 @@ BlockRelay::BlockRelay(int id, QWidget *parent) : MainElement(parent)
 
      nContacts = nContactsDown + nContactsUp + nContactsLeft + nContactsRight;
 
-     sizeX=3;
-     sizeY=3;
+     sizeX=5;
+     sizeY=5;
 
     for(int i=0;i<nContacts;i++)
     {
@@ -57,6 +60,7 @@ void BlockRelay::ShowContextMenu(const QPoint& pos)
         myMenu.addAction("Отразить по вертикали");
         myMenu.addAction("Отразить по горизонтали");
         myMenu.addAction("Удалить элемент");
+        myMenu.addAction("Изменить количество контактов");
 
         QAction* selectedItem = myMenu.exec(globalPos);
         if (selectedItem)
@@ -91,13 +95,141 @@ void BlockRelay::ShowContextMenu(const QPoint& pos)
                 dynamic_cast<Widget*>(this->parent())->DeleteElement(this);
             }
 
+            if(!txt.compare("Изменить количество контактов"))
+            {
+                ChangeNumberContacts();
+            }
+
         }
 
 
 
 }
 
+void BlockRelay::ChangeNumberContacts()
+{
 
+
+    QPushButton okButton,cancelButton;
+
+    okButton.setText(tr("OK"));
+    cancelButton.setText(tr("Cancel"));
+
+    QVBoxLayout layout;
+    //layout.setDirection(QBoxLayout::TopToBottom);
+
+    QVBoxLayout layoutButton;
+    layoutButton.addWidget(&okButton);
+    layoutButton.addWidget(&cancelButton);
+
+    QHBoxLayout layoutContact1;
+    QLabel text1;
+    text1.setText("Количество контактов с левой стороны");
+    QTextEdit textContactsLeft;
+    textContactsLeft.setMaximumHeight(30);
+    textContactsLeft.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    textContactsLeft.setText(QString::number(nContactsLeft));
+    layoutContact1.addWidget(&text1);
+    layoutContact1.addWidget(&textContactsLeft);
+
+    QHBoxLayout layoutContact2;
+    QLabel text2;
+    text2.setText("Количество контактов снизу");
+    QTextEdit textContactsBottom;
+    textContactsBottom.setMaximumHeight(30);
+    textContactsBottom.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    textContactsBottom.setText(QString::number(nContactsDown));
+    layoutContact2.addWidget(&text2);
+    layoutContact2.addWidget(&textContactsBottom);
+
+    QHBoxLayout layoutContact3;
+    QLabel text3;
+    text3.setText("Количество контактов c правой стороны");
+    QTextEdit textContactsRight;
+    textContactsRight.setMaximumHeight(30);
+    textContactsRight.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    textContactsRight.setText(QString::number(nContactsRight));
+    layoutContact3.addWidget(&text3);
+    layoutContact3.addWidget(&textContactsRight);
+
+    QHBoxLayout layoutContact4;
+    QLabel text4;
+    text4.setText("Количество контактов сверху");
+    QTextEdit textContactsTop;
+    textContactsTop.setMaximumHeight(30);
+    textContactsTop.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    textContactsTop.setText(QString::number(nContactsUp));
+    layoutContact4.addWidget(&text4);
+    layoutContact4.addWidget(&textContactsTop);
+
+
+
+    layout.addLayout(&layoutContact1);
+    layout.addLayout(&layoutContact2);
+    layout.addLayout(&layoutContact3);
+    layout.addLayout(&layoutContact4);
+    layout.addLayout(&layoutButton);
+
+
+     GetQuestionDialog()->setLayout(&layout);
+
+     QObject::connect(&okButton, SIGNAL(clicked()), this, SLOT(YesFunc()));
+     QObject::connect(&cancelButton, SIGNAL(clicked()), this, SLOT(NoFunc()));
+     GetQuestionDialog()->setVisible(true);
+     GetQuestionDialog()->show();
+     GetQuestionDialog()->exec();
+
+     if(GetResultDialog())
+     {
+
+         nContactsLeft = textContactsLeft.toPlainText().toInt();
+         nContactsRight = textContactsRight.toPlainText().toInt();
+         nContactsUp = textContactsTop.toPlainText().toInt();
+         nContactsDown = textContactsBottom.toPlainText().toInt();
+
+         int tempNcontatcts = nContacts;
+         nContacts = nContactsDown + nContactsUp + nContactsLeft + nContactsRight;
+
+         qDebug()<<tempNcontatcts<<"  "<<nContacts<<endl;
+
+         if(nContacts>tempNcontatcts)
+         {
+             for(int i=tempNcontatcts; i<nContacts;i++)
+             {
+                 arrContacts.append(new Contacts(this));
+                 arrContacts[i]->show();
+             }
+
+         }
+
+         if(nContacts<tempNcontatcts)
+         {
+
+             for(int i=tempNcontatcts-1; i>=nContacts;i--)
+             {
+                 if(arrContacts[i]->GetNeighbour()!=NULL)
+                 {
+                     arrContacts[i]->GetNeighbour()->SetNeighbour(NULL);
+                     arrContacts[i]->SetNeighbour(NULL);
+                 }
+
+                 delete arrContacts[i];
+                 arrContacts.remove(i);
+             }
+
+         }
+
+         SetContact();
+         dynamic_cast<Widget*>(this->parent())->repaint();
+
+
+     }
+
+
+
+
+
+}
 
 
 void BlockRelay::paintEvent(QPaintEvent *event)
@@ -242,7 +374,7 @@ void BlockRelay::SetMinimumSize()
 
 void BlockRelay::DrawBlock(QPainter*& painter)
 {
-    painter->drawRect(0.1*GetSTEP_GRID_X1(), 0.1*GetSTEP_GRID_Y1(), (sizeX-0.2)*GetSTEP_GRID_X1(), (sizeY-0.2)*GetSTEP_GRID_Y1() );
+    painter->drawRect(0.2*GetSTEP_GRID_X1(), 0.2*GetSTEP_GRID_Y1(), (sizeX-0.3)*GetSTEP_GRID_X1(), (sizeY-0.3)*GetSTEP_GRID_Y1() );
 
     //QFont font = &GetFont();
     painter->setFont(GetFont());
@@ -335,6 +467,16 @@ void BlockRelay::SetContact()
 
 BlockRelay::~BlockRelay()
 {
+    for(int i=0;i<arrContacts.size();i++)
+    {
+        if(arrContacts[i]->GetNeighbour()!=NULL)
+        {
+            arrContacts[i]->GetNeighbour()->SetNeighbour(NULL);
+            arrContacts[i]->SetNeighbour(NULL);
+        }
+    }
+
+
     for(int i=0;i<arrContacts.size();i++)
     {
         delete arrContacts[i];

@@ -50,6 +50,8 @@ public:
 
       void SetContact();
 
+      void ChangeNumberContacts();
+
 
 private:
     QString nameBlock;

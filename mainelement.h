@@ -12,6 +12,7 @@
 #include <contacts.h>
 #include <QFont>
 #include <QContextMenuEvent>
+#include <constans.h>
 
 
 
@@ -53,6 +54,17 @@ public:
         return font;
     }
 
+    QDialog* GetQuestionDialog()
+    {
+        return question;
+    }
+
+    bool GetResultDialog()
+    {
+        return resultDialog;
+    }
+
+    virtual void ChangeNumberContacts()=0;
 
     int CheckToBorderWidth(int x);
     int CheckToBorderHeight(int y);

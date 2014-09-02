@@ -35,7 +35,7 @@ bool MainElement::CreateDialog()
 
     QLabel text;
 
-    text.setText("Delete contact line?");
+    text.setText("Удалить линию соединения?");
     layout.setDirection(QBoxLayout::BottomToTop);
     layout.addWidget(&text);
 
@@ -54,18 +54,50 @@ bool MainElement::CreateDialog()
 bool MainElement::SetScale(float scale)
 {
     if(scale>=0)
-    {
+    {   
+        int tempX = STEP_GRID_X1;
+        int tempY = STEP_GRID_Y1;
+
+
         STEP_GRID_X1*= fabs(scale);
         STEP_GRID_Y1*= fabs(scale);
-        font.setPixelSize(STEP_GRID_X1/5.0);
+
+        if(tempX==STEP_GRID_X1 || tempY == STEP_GRID_Y1)
+        {
+            STEP_GRID_X1+= 1;
+            STEP_GRID_Y1+= 1;
+        }
+
+        int fontSize = (int)STEP_GRID_X1/5.0;
+        if(fontSize>=1)
+            font.setPixelSize(fontSize);
+        else
+            font.setPixelSize(1);
+
         return true;
     }
 
-    if(scale<0 && STEP_GRID_X1>14 && STEP_GRID_Y1>14)
+    if(scale<0 && STEP_GRID_X1>2 && STEP_GRID_Y1>2)
     {
+        int tempX = STEP_GRID_X1;
+        int tempY = STEP_GRID_Y1;
+
+
         STEP_GRID_X1/= fabs(scale);
         STEP_GRID_Y1/= fabs(scale);
-        font.setPixelSize(STEP_GRID_X1/5.0);
+
+        if(tempX==STEP_GRID_X1 || tempY == STEP_GRID_Y1)
+        {
+            STEP_GRID_X1-= 1;
+            STEP_GRID_Y1-= 1;
+        }
+
+        int fontSize = (int)STEP_GRID_X1/5.0;
+        if(fontSize>=1)
+            font.setPixelSize(fontSize);
+        else
+            font.setPixelSize(1);
+
         return true;
     }
 

@@ -3,6 +3,7 @@
 
 #include <QScrollArea>
 #include <widget.h>
+#include <QDebug>
 
 Contacts::Contacts(QWidget* parent) : QWidget(parent)
 {
@@ -116,4 +117,9 @@ void Contacts::mousePressEvent(QMouseEvent* mouseEvent)
             }
 
     }
+}
+
+Contacts::~Contacts()
+{
+
 }
