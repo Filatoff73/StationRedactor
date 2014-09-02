@@ -374,7 +374,7 @@ void BlockRelay::SetMinimumSize()
 
 void BlockRelay::DrawBlock(QPainter*& painter)
 {
-    painter->drawRect(0.2*GetSTEP_GRID_X1(), 0.2*GetSTEP_GRID_Y1(), (sizeX-0.3)*GetSTEP_GRID_X1(), (sizeY-0.3)*GetSTEP_GRID_Y1() );
+    painter->drawRect(1, 1, (sizeX)*GetSTEP_GRID_X1()-2, (sizeY)*GetSTEP_GRID_Y1()-2 );
 
     //QFont font = &GetFont();
     painter->setFont(GetFont());
