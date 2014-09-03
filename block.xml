@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Block name="her" type = "5">
+	<Contacts left = "0-5" down="6-8" right = "9-9" up="10-58">
+		<Contact name = "1 her" num = "0" id = "0"/>
+		<Contact name = "2 her" num = "1" id = "1"/>
+		<Contact name = "3 her" num = "2" id = "3"/>
+	</Contacts>
+</Block>

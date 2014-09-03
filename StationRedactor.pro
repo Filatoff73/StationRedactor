@@ -28,3 +28,5 @@ HEADERS  += widget.h \
 
 FORMS    += widget.ui \
     mainwindow.ui
+
+QT += xml
